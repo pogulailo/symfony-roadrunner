@@ -4,6 +4,10 @@ networks:
   app-network:
     driver: bridge
 
+volumes:
+  postgresql-data:
+    driver: local
+
 services:
   app: &app-service
     build:
@@ -11,10 +15,24 @@ services:
       dockerfile: docker/app/image/Dockerfile
     restart: on-failure
     volumes:
-      - ./app:/app
+      - ./app:/app:rw
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
     ports:
       - '80:8080'
+    networks:
+      - app-network
+
+  postgresql:
+    image: postgres:13.1-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: 'symfony-roadrunner'
+      POSTGRES_USER: 'symfony-roadrunner'
+      POSTGRES_PASSWORD: 'symfony-roadrunner'
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data:rw
+    ports:
+      - '5432:5432'
     networks:
       - app-network
