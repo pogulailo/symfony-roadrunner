@@ -1,0 +1,20 @@
+version: '3.2'
+
+networks:
+  app-network:
+    driver: bridge
+
+services:
+  app: &app-service
+    build:
+      context: ./
+      dockerfile: docker/app/image/Dockerfile
+    restart: on-failure
+    volumes:
+      - ./app:/app
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    ports:
+      - '80:8080'
+    networks:
+      - app-network
